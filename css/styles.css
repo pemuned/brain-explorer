@@ -452,7 +452,7 @@ html[data-contrast="high"] .pointer-chip {
   left: 50%;
   bottom: 0.8rem;
   transform: translateX(-50%);
-  width: min(44rem, calc(100% - 1.2rem));
+  width: min(60rem, calc(100% - 1.2rem));
   display: flex;
   justify-content: space-between;
   gap: 0.8rem;

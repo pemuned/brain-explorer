@@ -75,7 +75,7 @@ const COPY = {
     capture: "Capturar imagen",
     motionOn: "",
     motionOff: "",
-    progress: (name, index, total) => `${name} — ${index} de ${total}`,
+    progress: (name, index, total) => `${name} : ${index} de ${total}`,
   },
   en: {
     code: "en",
@@ -152,7 +152,7 @@ const COPY = {
     capture: "Capture image",
     motionOn: "Animations are reduced to match the system preference.",
     motionOff: "Animations use the system's normal duration.",
-    progress: (name, index, total) => `${name} — ${index} of ${total}`,
+    progress: (name, index, total) => `${name} : ${index} of ${total}`,
   },
 };
 
