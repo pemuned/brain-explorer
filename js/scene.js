@@ -45,7 +45,7 @@ export function createScene(host) {
   controls.zoomSpeed = 0.85;
   controls.panSpeed = 0.7;
   controls.target.set(0, 0, 0);
-  controls.autoRotate = false;
+  controls.autoRotate = true;
   controls.autoRotateSpeed = 0.65;
   controls.maxPolarAngle = Math.PI * 0.92;
   controls.minPolarAngle = Math.PI * 0.08;
