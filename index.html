@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Explorador anatómico 3D interactivo del cerebro humano." />
+  <title>Explorador del cerebro humano</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+  <a class="skip-link" id="skip-list" href="#structure-list">Saltar a la lista de estructuras</a>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <p class="eyebrow" id="app-eyebrow">Visualización interactiva en 3D</p>
+        <h1 id="app-title">Explorador del cerebro humano</h1>
+      </div>
+      <div class="field" id="language-field">
+        <label id="language-label" for="language-select">Idioma</label>
+        <select id="language-select">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <section class="viewer" id="viewer" aria-label="Visor tridimensional del cerebro" aria-busy="true">
+        <div id="canvas-host"></div>
+        <svg id="leaders" class="leaders" aria-hidden="true"></svg>
+        <div id="label-layer" class="label-layer"></div>
+        <div id="pointer-chip" class="pointer-chip" hidden></div>
+
+        <div class="viewer-tools" id="viewer-tools">
+          <div class="menu" id="view-menu">
+            <button type="button" class="btn" id="btn-view" aria-expanded="false"
+              aria-controls="view-panel">Vista</button>
+            <div id="view-panel" class="popover" hidden>
+              <label class="switch" for="toggle-labels">
+                <input id="toggle-labels" type="checkbox" role="switch" />
+                <span class="switch-control" aria-hidden="true"></span>
+                <span id="toggle-labels-text">Etiquetas</span>
+              </label>
+              <label class="switch" for="toggle-rotate">
+                <input id="toggle-rotate" type="checkbox" role="switch" checked />
+                <span class="switch-control" aria-hidden="true"></span>
+                <span id="toggle-rotate-text">Rotación automática</span>
+              </label>
+              <div class="separation-row">
+                <label id="separation-label" for="separation">Separación de estructuras</label>
+                <input id="separation" type="range" min="0" max="100" step="1" value="0" />
+                <output id="separation-value" for="separation">0%</output>
+              </div>
+              <label class="check" for="access-isolate">
+                <input id="access-isolate" type="checkbox" />
+                <span id="access-isolate-label">Aislar pieza seleccionada</span>
+              </label>
+              <div class="access-slider">
+                <label id="access-ghost-label" for="access-ghost">Transparencia del resto</label>
+                <input id="access-ghost" type="range" min="0" max="80" step="5" value="0" />
+                <output id="access-ghost-value" for="access-ghost">0%</output>
+              </div>
+              <button type="button" class="btn" id="access-capture">Capturar imagen</button>
+            </div>
+          </div>
+          <div class="menu" id="access-menu">
+            <button type="button" class="btn" id="btn-access" aria-expanded="false"
+              aria-controls="access-panel">Accesibilidad</button>
+            <div id="access-panel" class="popover" hidden>
+              <fieldset>
+                <legend id="access-text-label">Tamaño de letra</legend>
+                <div class="segmented" role="group" aria-labelledby="access-text-label">
+                  <button type="button" class="btn" data-text="md" aria-pressed="true">Normal</button>
+                  <button type="button" class="btn" data-text="lg" aria-pressed="false">Grande</button>
+                  <button type="button" class="btn" data-text="xl" aria-pressed="false">Muy grande</button>
+                </div>
+              </fieldset>
+              <label class="check" for="access-contrast">
+                <input id="access-contrast" type="checkbox" />
+                <span id="access-contrast-label">Contraste alto</span>
+              </label>
+              <fieldset>
+                <legend id="access-bg-label">Fondo del visor</legend>
+                <div class="segmented" role="group" aria-labelledby="access-bg-label">
+                  <button type="button" class="btn" data-bg="light" aria-pressed="true">Claro</button>
+                  <button type="button" class="btn" data-bg="dark" aria-pressed="false">Oscuro</button>
+                </div>
+              </fieldset>
+              <label class="check" for="access-names">
+                <input id="access-names" type="checkbox" checked />
+                <span id="access-names-label">Nombre al señalar</span>
+              </label>
+              <p id="access-motion" class="access-note"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="loader" class="loader" role="status" aria-live="polite">
+          <div class="loader-card">
+            <p id="loader-text">Cargando modelo anatómico…</p>
+            <div class="progress is-indeterminate" id="loader-track"><span id="loader-bar"></span></div>
+          </div>
+        </div>
+
+        <div id="status-banner" class="status-banner" hidden role="alert">
+          <p id="status-message"></p>
+          <div class="banner-actions">
+            <button type="button" id="status-action" hidden>Recargar</button>
+            <button type="button" id="status-dismiss">Ocultar aviso</button>
+          </div>
+        </div>
+
+        <div id="tour-bar" class="tour-bar" hidden>
+          <p id="tour-status" aria-live="polite"></p>
+          <div class="tour-actions">
+            <button type="button" class="btn" id="tour-prev">Anterior</button>
+            <button type="button" class="btn btn-primary" id="tour-next">Siguiente</button>
+            <button type="button" class="btn btn-primary" id="tour-restart" hidden>Reiniciar recorrido</button>
+            <button type="button" class="btn" id="tour-end">Finalizar recorrido</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="info-panel" id="info-panel" aria-labelledby="info-name">
+        <div class="info-head">
+          <button type="button" class="sheet-toggle" id="info-expand" hidden>Abrir ficha</button>
+          <h2 id="info-name">Ninguna estructura seleccionada</h2>
+          <button type="button" class="btn btn-quiet" id="info-close" hidden>Cerrar</button>
+        </div>
+        <div class="info-body" id="info-body">
+          <p id="info-empty" class="empty-copy">Selecciona una estructura en el modelo, en una etiqueta o en la lista
+            anatómica.</p>
+          <dl id="info-facts" hidden>
+            <div id="field-category" hidden>
+              <dt id="label-category">Categoría anatómica</dt>
+              <dd></dd>
+            </div>
+            <div id="field-description" hidden>
+              <dt id="label-description">Descripción</dt>
+              <dd></dd>
+            </div>
+            <div id="field-function" hidden>
+              <dt id="label-function">Función principal</dt>
+              <dd></dd>
+            </div>
+            <div id="field-location" hidden>
+              <dt id="label-location">Ubicación</dt>
+              <dd></dd>
+            </div>
+            <div id="field-fact" hidden>
+              <dt id="label-fact">Dato interesante</dt>
+              <dd></dd>
+            </div>
+          </dl>
+          <p id="info-technical" class="technical-name" hidden></p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="toolbar" id="toolbar" role="toolbar" aria-label="Controles de exploración">
+      <div class="toolbar-scroll">
+        <button type="button" class="btn btn-primary" id="btn-explore" aria-pressed="false">Explorar cerebro</button>
+        <button type="button" class="btn" id="btn-tour">Recorrido guiado</button>
+        <button type="button" class="btn" id="btn-list">Lista de estructuras</button>
+        <button type="button" class="btn" id="btn-info" hidden>Ver información</button>
+        <button type="button" class="btn toolbar-credits" id="btn-credits">Créditos</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="structure-dialog" aria-labelledby="structure-dialog-title">
+    <div class="dialog-card">
+      <div class="dialog-head">
+        <h2 id="structure-dialog-title">Estructuras anatómicas</h2>
+        <button type="button" class="btn btn-quiet" id="structure-dialog-close">Cerrar</button>
+      </div>
+      <div id="structure-list" tabindex="-1"></div>
+    </div>
+  </dialog>
+
+  <dialog id="credits-dialog" aria-labelledby="credits-dialog-title">
+    <div class="dialog-card">
+      <div class="dialog-head">
+        <h2 id="credits-dialog-title">Créditos</h2>
+        <button type="button" class="btn btn-quiet" id="credits-dialog-close">Cerrar</button>
+      </div>
+      <div class="credits-body">
+        <p id="credits-intro">Experiencia educativa interactiva para explorar la anatomía cerebral en 3D.</p>
+        <dl>
+          <div>
+            <dt id="credits-label">Producción multimedia</dt>
+            <dd>Productor Académico: Marco Sánchez Mora</dd>
+            <dd>Programación: Deiver Herrera Sánchez</dd>
+          </div>
+          <div>
+            <dt id="credits-label">Modelo anatómico 3D</dt>
+            <dd>
+              <a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noreferrer">BodyParts3D</a>,
+              © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan.
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </dialog>
+
+  <p id="live-region" class="visually-hidden" aria-live="polite"></p>
+
+  <noscript>
+    <p class="noscript">Esta aplicación necesita JavaScript para mostrar el modelo tridimensional.</p>
+  </noscript>
+
+  <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
