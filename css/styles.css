@@ -79,7 +79,6 @@ button, select, .structure-label { touch-action: manipulation; }
   color: var(--accent);
   font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -88,7 +87,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 640; }
 h1 {
   margin: 0;
   font-size: clamp(1.2rem, 2vw, 1.7rem);
-  letter-spacing: -0.03em;
 }
 
 .field {
@@ -483,7 +481,6 @@ html[data-contrast="high"] .pointer-chip {
 .info-head h2, .dialog-head h2 {
   margin: 0;
   font-size: 1.25rem;
-  letter-spacing: -0.03em;
 }
 
 .info-body {
@@ -499,7 +496,6 @@ dl div { margin-bottom: 0.9rem; }
 dt {
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent);
 }
